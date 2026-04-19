@@ -1,0 +1,57 @@
+What if your kali Linux installation failed :
+The Problem :
+1. It will cause your memory cant be extended again.
+2. You will have EFI that ridicoulus because of failed installation
+3. Installing Kali Linux stuck in python3.8 amd
+
+A. Check the where the EFI kali Linux cache before we delete it :
+1. Run this command in powershell as administrator :
+	diskpart
+	select disk 0
+	select partition 4
+	assign letter=Z
+	
+	- diskpart : go to the disk manager on powershell/commandprompt
+	- select disk 0 : select the disk 0. Or you can cross check the disk that you want to manage
+			  using disk list.
+	- select partition 4 : choose the partition that we want to manage or where the EFI is.
+	- assign letter=Z : give partition a letter Z so the hidden file will shown
+
+2. And then exit
+3. Run this command :
+	Get-ChildItem Z:\
+	Get-ChildItem Z:\EFI
+	Get-ChildItem Z:\EFI\Microsoft
+	Get-ChildItem Z:\EFI\Boot
+	Get-ChildItem Z:\EFI\debian
+	Get-ChildItem Z:\EFI\kali
+
+	- Get-ChildItem Z:\... : to check every folder on drive Z
+
+if there is an error run this 
+	Get-ChildItem Z:\ -Force
+	cmd /c dir /a Z:\
+	Get-Volume Z
+
+4. Final Check
+	mountvol S: /S
+	dir S:\EFI
+	bcdedit /enum firmware
+	
+	- mountvol S: /S : Mound the EFI system partition to S letter so we can access 
+			   without guessing the number of partition
+
+5. Suspand The bitlocker (if there is)
+	manage-bde -protectors -disable C:
+
+6. Remove letter Z
+	diskpart
+	select disk 0
+	select partition 4
+	remove letter=Z
+	exit
+7. Remove the partition from fail kali Linux :
+	diskpart
+	select disk 0
+	select partition 4
+	delete partition override
